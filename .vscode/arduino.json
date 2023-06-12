@@ -1,0 +1,6 @@
+{
+    "sketch": "Metis-CC-smarthome-Arduino.ino",
+    "port": "COM3",
+    "board": "arduino:avr:uno",
+    "programmer": "arduinoasisp"
+}
