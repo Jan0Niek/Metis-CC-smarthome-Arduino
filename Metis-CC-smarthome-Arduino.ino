@@ -8,9 +8,9 @@ const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 const int TEMPERATUUR_PIN = A1;
-const int LAMP = 10;
+const int LAMP = 6;
 const int KNOP = 13;
-const int SERVO_1_PIN = 6;
+const int SERVO_1_PIN = 10;
 const int SERVO_2_PIN = 9;
 Servo servo_1;
 Servo servo_2;
@@ -33,12 +33,14 @@ void loop() {
   //altijd lamp input checken en de lamp aan/uitzetten
   stand = lampje();
   if (stand == 3 || stand == 4){
-    servo_1.write(0);
+    servo_1.write(180);
     servo_2.write(0);
   } else {
-    servo_1.write(180);
+    servo_1.write(0);
     servo_2.write(180);
   }
+    analogWrite(LAMP, map(stand, 0, 4, 0, 255));
+
   
   unsigned long printtijd = millis();
   temperatuur(printtijd);
@@ -50,7 +52,6 @@ int lampje(){
       if (stand > 4){
         stand = 0;
       }
-    Serial.write("Is er");
     analogWrite(LAMP, map(stand, 0, 4, 0, 255));
     delay(250);
   }
