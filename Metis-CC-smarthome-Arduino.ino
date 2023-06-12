@@ -1,4 +1,5 @@
-// include the library code:
+//include downloads in het .vscode folder gaan niet kloppen op andere pc's
+#include <Servo.h>
 #include <LiquidCrystal.h>
 
 // initialize the library by associating any needed LCD interface pin
@@ -9,6 +10,11 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 const int TEMPERATUUR_PIN = A1;
 const int LAMP = 10;
 const int KNOP = 13;
+const int SERVO_1_PIN = 6;
+const int SERVO_2_PIN = 9;
+Servo servo_1;
+Servo servo_2;
+
 
 float temps = 0.0;
 int stand = 0;
@@ -19,27 +25,37 @@ void setup() {
   Serial.begin(9600);
   pinMode(KNOP, INPUT);
   pinMode(LAMP, OUTPUT);
-  
+  servo_1.attach(SERVO_1_PIN);
+  servo_2.attach(SERVO_2_PIN);
 }
 
 void loop() {
   //altijd lamp input checken en de lamp aan/uitzetten
-  lampje();
+  stand = lampje();
+  if (stand == 3 || stand == 4){
+    servo_1.write(0);
+    servo_2.write(0);
+  } else {
+    servo_1.write(180);
+    servo_2.write(180);
+  }
   
   unsigned long printtijd = millis();
   temperatuur(printtijd);
 }
 
-void lampje(){
+int lampje(){
   if(digitalRead(KNOP) == HIGH){
       stand += 1;
       if (stand > 4){
         stand = 0;
       }
+    Serial.write("Is er");
     analogWrite(LAMP, map(stand, 0, 4, 0, 255));
     delay(250);
   }
   analogWrite(LAMP, map(stand, 0, 4, 0, 255));
+  return stand;
 }
 
 long temperatuur(unsigned long afgelopen_printtijd){
