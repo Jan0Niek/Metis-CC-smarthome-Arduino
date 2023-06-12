@@ -8,9 +8,8 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 const int TEMPERATUUR_PIN = A1;
 const int LAMP = 10;
-const int KNOP = 9;
+const int KNOP = 13;
 
-float vorigeCelcius = 0.0;
 float temps = 0.0;
 int stand = 0;
 
@@ -24,31 +23,39 @@ void setup() {
 }
 
 void loop() {
-  float temps = temperatuur();
+  //altijd lamp input checken en de lamp aan/uitzetten
+  lampje();
+  
+  unsigned long printtijd = millis();
+  temperatuur(printtijd);
+}
+
+void lampje(){
   if(digitalRead(KNOP) == HIGH){
       stand += 1;
       if (stand > 4){
         stand = 0;
       }
-    delay(200);
+    analogWrite(LAMP, map(stand, 0, 4, 0, 255));
+    delay(250);
   }
   analogWrite(LAMP, map(stand, 0, 4, 0, 255));
 }
 
-
-float temperatuur(){
-  // delay(250);
-  // lcd.scrollDisplayLeft();
-  int Temp = analogRead(TEMPERATUUR_PIN);  
-  float volts = (Temp / 965.0) * 5;  
-  float celcius = (volts - 0.5) * 100;  
-  float deltaCelcius = abs(vorigeCelcius - celcius);
-  if (deltaCelcius > 1.3){
+long temperatuur(unsigned long afgelopen_printtijd){
+  //check zonder delay() of er genoeg tijd voorbij is zodat het scherm niet spastisch doet
+  // al zouden we delay() doen moest je knopje ingedrukt houden...
+  // ik heb geen idee hoe delay van 0l werkt maar oke
+  if ((millis()- afgelopen_printtijd) > 0l ){
+    int Temp = analogRead(TEMPERATUUR_PIN);  
+    float volts = (Temp / 965.0) * 5;  
+    float celcius = (volts - 0.5) * 100;  
+    
     lcd.home();
-    lcd.print(celcius-4);
+    lcd.print(celcius-4.8);
     lcd.setCursor(0,2);
     lcd.print("graden Celcius");
-    vorigeCelcius = celcius;
+    unsigned long printtijd = millis();
+    return printtijd;
   }
-  return celcius-6;
 }
